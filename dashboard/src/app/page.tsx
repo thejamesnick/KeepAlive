@@ -15,7 +15,7 @@ export default function Home() {
         </a>
       </header>
 
-      <main className="flex flex-col items-center justify-center text-center px-4 max-w-4xl space-y-12">
+      <main className="flex-grow flex flex-col items-center justify-center text-center px-4 max-w-4xl space-y-12 pt-20 pb-20">
 
         {/* Hero Section */}
         <div className="space-y-6">
@@ -59,7 +59,7 @@ export default function Home() {
 
       </main>
 
-      <footer className="absolute bottom-0 w-full p-6 text-center text-neutral-500 text-sm font-mono">
+      <footer className="w-full text-center text-neutral-500 text-sm font-mono py-12">
         © 2025 KeepAlive. Built for builders.
       </footer>
     </div>

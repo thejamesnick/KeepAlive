@@ -1,4 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Logo from "@/components/Logo";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/Button";
 
 // Mock Data for UI Dev
 const MOCK_PROJECTS = [
@@ -34,9 +39,9 @@ export default function Dashboard() {
                         <h1 className="text-2xl font-bold tracking-tight">Your Projects</h1>
                         <p className="text-neutral-500 text-sm mt-1">Monitoring {MOCK_PROJECTS.length} endpoints.</p>
                     </div>
-                    <button className="h-10 px-4 bg-black text-white dark:bg-white dark:text-black rounded-lg text-sm font-medium hover:opacity-80 transition-opacity flex items-center gap-2">
+                    <Button>
                         <span>+</span> New Project
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Project Grid */}
@@ -61,7 +66,7 @@ function ProjectCard({ project }: { project: any }) {
     const isAlive = project.status === "active";
 
     return (
-        <div className="group relative p-5 rounded-[20px] bg-white dark:bg-[#0A0A0A] border border-black/5 dark:border-white/10 hover:shadow-xl hover:border-black/10 dark:hover:border-white/20 transition-all duration-300">
+        <Card className="group relative p-5 hover:shadow-xl transition-all duration-300">
             <div className="flex justify-between items-start mb-4">
                 <div className="flex flex-col">
                     <h3 className="font-semibold text-sm tracking-tight">{project.name}</h3>
@@ -85,7 +90,7 @@ function ProjectCard({ project }: { project: any }) {
             <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-opacity">
                 {/* Context Menu Icon placeholder */}
             </div>
-        </div>
+        </Card>
     )
 }
 

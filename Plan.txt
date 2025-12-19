@@ -20,6 +20,7 @@
 - `api_token` (text/uuid) - Warning: Shown once or hash stored? (For simplicity MVP: Store generated UUID)
 - `last_ping_at` (timestamp)
 - `status` (text) - 'active', 'at_risk', 'dead'
+- `subscription_tier` (text) - 'free', 'pro' (Default: 'free')
 
 ### Table: `pings`
 - `id` (uuid)
@@ -27,6 +28,20 @@
 - `created_at` (timestamp)
 - `success` (boolean)
 - `latency` (int) - optional
+
+---
+
+## 1.5 Monetization Strategy (Future)
+**Free Tier**:
+* 2 Pings / Week (Tue, Thu)
+* Email Alerts only
+* 3 Projects Limit
+
+**Pro Tier ($5/mo)**:
+* Daily Pings
+* SMS / Slack Alerts
+* Unlimited Projects
+* Team Access
 
 ---
 
