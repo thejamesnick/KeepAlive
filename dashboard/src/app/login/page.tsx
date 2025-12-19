@@ -1,24 +1,19 @@
 "use client";
 
+import { createClient } from "@/utils/supabase/client";
 import Logo from "@/components/Logo";
-import { supabase } from "@/lib/supabase";
 import { Github } from "lucide-react";
 
 export default function Login() {
+    const supabase = createClient();
+
     const handleLogin = async (provider: 'github' | 'google') => {
-        // TEMPORARY DEMO MODE: Bypass Supabase Auth for presentation
-        // In real app, uncomment this:
-        /*
         await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: `${window.location.origin}/dashboard`
+                redirectTo: `${window.location.origin}/auth/callback`
             }
         });
-        */
-
-        // Demo Redirect:
-        window.location.href = '/dashboard';
     };
 
     return (

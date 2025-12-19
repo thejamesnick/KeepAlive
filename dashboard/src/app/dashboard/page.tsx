@@ -10,43 +10,26 @@ import { NewProjectModal } from "@/components/NewProjectModal";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SettingsModal } from "@/components/SettingsModal";
 import { generateProjectId, generateApiToken } from "@/lib/generators";
+import { createClient } from "@/utils/supabase/client";
 
-// Initial Mock Data
-// We include secrets here to simulate they are stored in the DB
-const INITIAL_PROJECTS = [
-    {
-        id: 1,
-        name: "KeepAlive Self-Check",
-        status: "active",
-        lastPing: "2 mins ago",
-        nextPing: "Tuesday 00:00",
-        projectId: "kp_self_check_01",
-        apiToken: "keep_live_demo_token_123"
-    },
-    {
-        id: 2,
-        name: "Portfolio Site V1",
-        status: "active",
-        lastPing: "1 hour ago",
-        nextPing: "Tuesday 00:00",
-        projectId: "kp_portfolio_02",
-        apiToken: "keep_live_demo_token_456"
-    },
-    {
-        id: 3,
-        name: "Crypto Bot Demo",
-        status: "dead",
-        lastPing: "8 days ago",
-        nextPing: "-",
-        projectId: "kp_crypto_03",
-        apiToken: "keep_live_demo_token_789"
-    },
-];
+// Simple relative time formatter
+function formatRelativeTime(dateString: string | null) {
+    if (!dateString) return "Never";
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return "Just now";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} mins ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+}
 
 export default function Dashboard() {
-    // Initial fetch simulation logic
-    const [projects, setProjects] = useState(INITIAL_PROJECTS);
+    const supabase = createClient();
+    const [projects, setProjects] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState(1);
@@ -56,12 +39,35 @@ export default function Dashboard() {
     const [currentProject, setCurrentProject] = useState<any>(null);
     const [hasCopiedAll, setHasCopiedAll] = useState(false);
 
-    // Simulate Data Fetching Delay
+    // Initial Data Fetch
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1500);
-        return () => clearTimeout(timer);
+        async function loadData() {
+            try {
+                // 1. Get User
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    window.location.href = '/login'; // Protect route
+                    return;
+                }
+                setUser(user);
+
+                // 2. Get Projects
+                const { data, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (data) {
+                    setProjects(data);
+                }
+            } catch (error) {
+                console.error("Failed to load dashboard:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        loadData();
     }, []);
 
     // State to hold secrets for the *currently viewed* project
@@ -75,7 +81,6 @@ export default function Dashboard() {
         setNewProjectName("");
         setModalStep(1);
         setCurrentProject(null);
-        // Reset secrets for new project (will be generated on submit)
         setActiveSecrets({
             PROJECT_ID: "Generating...",
             TOKEN: "Generating...",
@@ -87,13 +92,14 @@ export default function Dashboard() {
     const openExistingProject = (project: any) => {
         setNewProjectName(project.name);
         setCurrentProject(project);
-        // Load the PERSISTED secrets for this project
+
+        // Pass the stored DB values
         setActiveSecrets({
-            PROJECT_ID: project.projectId,
-            TOKEN: project.apiToken,
+            PROJECT_ID: project.project_id,
+            TOKEN: project.api_token,
             ENDPOINT: "https://keepalive.app/api/ping"
         });
-        setModalStep(2); // Jump straight to integration view
+        setModalStep(2);
         setIsModalOpen(true);
     };
 
@@ -105,37 +111,51 @@ export default function Dashboard() {
         setCurrentProject(null);
     };
 
-    const handleCreateProject = (e: React.FormEvent) => {
+    const handleCreateProject = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newProjectName.trim()) return;
+        if (!newProjectName.trim() || !user) return;
 
-        // Generate secrets ONCE per project creation
+        // Generate secrets
         const newProjectId = generateProjectId();
         const newApiToken = generateApiToken();
 
-        // Create the new project in state
-        const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-        const newProj = {
-            id: newId,
+        // Optimistic UI Update (Instant feel)
+        const tempProject = {
+            id: "temp-" + Date.now(),
             name: newProjectName,
-            status: "active",
-            lastPing: "Waiting...",
-            nextPing: "Tuesday 00:00",
-            projectId: newProjectId,   // STORE IT
-            apiToken: newApiToken     // STORE IT
+            status: "pending",
+            last_ping_at: null,
+            project_id: newProjectId,
+            api_token: newApiToken,
+            created_at: new Date().toISOString()
         };
+        setProjects([tempProject, ...projects]);
 
-        setProjects([...projects, newProj]);
-        setCurrentProject(newProj);
-
-        // Update the modal view to show these new secrets
+        // Show secrets immediately
         setActiveSecrets({
             PROJECT_ID: newProjectId,
             TOKEN: newApiToken,
             ENDPOINT: "https://keepalive.app/api/ping"
         });
-
         setModalStep(2);
+
+        // Actual DB Insert
+        const { data, error } = await supabase.from('projects').insert({
+            user_id: user.id,
+            name: newProjectName,
+            project_id: newProjectId,
+            api_token: newApiToken,
+            status: 'pending'
+        }).select().single();
+
+        if (data) {
+            // Replace temp project with real one
+            setProjects(prev => prev.map(p => p.id === tempProject.id ? data : p));
+            setCurrentProject(data);
+        } else {
+            console.error("Creation failed:", error);
+            // Revert on error (optional)
+        }
     };
 
     const handleCopyAll = () => {
@@ -179,18 +199,21 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {isLoading ? (
                         <>
-                            {/* Render Skeletons during loading state */}
                             <ProjectSkeleton />
                             <ProjectSkeleton />
                             <ProjectSkeleton />
                         </>
                     ) : (
                         <>
-                            {/* Render Actual Projects */}
                             {projects.map((project) => (
                                 <ProjectCard
                                     key={project.id}
-                                    project={project}
+                                    project={{
+                                        ...project,
+                                        // Adapter for ProjectCard which expects 'lastPing' (camelCase)
+                                        lastPing: formatRelativeTime(project.last_ping_at),
+                                        nextPing: project.status === 'active' ? 'Unknown' : '-' // Calculation can be added later
+                                    }}
                                     onClick={() => openExistingProject(project)}
                                 />
                             ))}

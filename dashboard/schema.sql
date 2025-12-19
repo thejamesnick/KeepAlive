@@ -76,3 +76,37 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- 6. RPC FUNCTION: Register Ping (Securely bypasses RLS)
+create or replace function public.register_ping(token text)
+returns jsonb
+language plpgsql
+security definer -- << This runs as Admin (bypasses RLS)
+as $$
+declare
+  target_project_id uuid;
+begin
+  -- 1. Find project by token
+  select id into target_project_id
+  from public.projects
+  where api_token = token
+  limit 1;
+
+  -- 2. If not found, error
+  if target_project_id is null then
+    return jsonb_build_object('success', false, 'error', 'Invalid Token');
+  end if;
+
+  -- 3. Insert Ping
+  insert into public.pings (project_id, success, latency_ms)
+  values (target_project_id, true, 0); 
+
+  -- 4. Update Project Last Ping
+  update public.projects
+  set last_ping_at = now(),
+      status = 'active' -- Revive it if it was dead
+  where id = target_project_id;
+
+  return jsonb_build_object('success', true, 'project_id', target_project_id);
+end;
+$$;
