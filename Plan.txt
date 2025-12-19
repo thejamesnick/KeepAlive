@@ -13,64 +13,63 @@
 ## 📅 Current Status (Dec 2025)
 - **Frontend**: ✅ Complete (Landing, Dashboard, Wizard, Profile UI).
 - **Design**: ✅ Complete (Minimalist, Apple-style).
-- **Backend**: 🚧 Pending (Supabase Setup, API Routes).
-- **Auth**: 🚧 Pending (Supabase Auth Integration).
+- **Backend (DB)**: ✅ Complete (Schema defined, RLS set).
+- **Auth UI**: ✅ Complete (Login Page, Redirects).
+- **Next Step**: 🚧 **API Endpoint Implementation**.
 
 ---
 
-## 1. Database Schema (Supabase) 🚧
+## 1. Database Schema (Supabase) ✅
+### Table: `profiles`
+- Handles User data, billing tier, Stripe ID.
+- Linked one-to-one with Auth Users.
+
 ### Table: `projects`
-- `id` (uuid, primary key)
-- `user_id` (uuid, foreign key to auth.users)
-- `name` (text) - generic name e.g. "My Side Project"
-- `slug` (text) - unique identifier for URLs
-- `api_token` (text/uuid) - Warning: Shown once or hash stored? (For simplicity MVP: Store generated UUID)
-- `last_ping_at` (timestamp)
-- `status` (text) - 'active', 'at_risk', 'dead'
-- `subscription_tier` (text) - 'free', 'pro' (Default: 'free')
+- `settings` (jsonb): Future-proof column for Slack/Discord webhooks.
+- `api_token` (text): **Currently Plain Text** for better UX (View/Copy).
+  - *Note: Migration plan to Hashed Tokens (bcrypt) exists for Post-MVP security hardening.*
 
 ### Table: `pings`
-- `id` (uuid)
-- `project_id` (uuid)
-- `created_at` (timestamp)
-- `success` (boolean)
-- `latency` (int) - optional
+- History of all health checks.
 
 ---
 
-## 2. API Endpoint (The Receiver) 🚧
+## 2. API Endpoint (The Receiver) 🚧 (Next Priority)
 path: `/app/api/ping`
 
 **Logic:**
 1. Receive POST request with `{ "project_id": "...", "status": "ok" }`.
-2. Verify `Authorization` header matches the project's token.
-3. Insert row into `pings` table.
-4. Update `last_ping_at` on `projects` table.
+2. Verify `Authorization` header matches the project's token in DB.
+3. **If Valid**:
+   - Insert row into `pings` table.
+   - Update `last_ping_at` on `projects` table.
+   - Return `{ success: true }`.
+4. **If Invalid**: Return 401 Unauthorized.
 
 ---
 
 ## 3. Frontend Pages (Dashboard) ✅
 
 ### A. Landing / Login ✅
-- Minimalist hero section: "Keep your free tiers alive."
-- Login button (Supabase Auth connection pending).
+- Landing Page: "Get Started" -> `/login`.
+- Login Page: "Continue with GitHub / Google" (Supabase Auth).
+  - *Note: "Link identities on email" must be enabled in Supabase.*
 
 ### B. Main Dashboard (`/dashboard`) ✅
 - **Header**: "KeepAlive" logo (text only).
 - **List of Projects**:
   - Grid Layout with Squircle Cards.
+  - **Loading State**: Pulse Skeleton (Black & White).
   - Status Indicators (Pulse Dot).
-  - Copy/View Credentials functionality.
+  - Copy/View Credentials functionality (Persistence fixed).
 
 ### C. "New Project" Flow (Wizard) ✅
 - **Step 1**: Create (Name Input).
 - **Step 2**: Secrets (Credentials Display).
-  - `KEEPALIVE_PROJECT_ID`
-  - `KEEPALIVE_TOKEN`
-  - `KEEPALIVE_ENDPOINT`
+  - `KEEPALIVE_PROJECT_ID` (Generated: `kp_...`)
+  - `KEEPALIVE_TOKEN` (Generated: `keep_live_...`)
 - **Step 3**: Workflow (YAML Generation).
   - Dynamic Cron Schedule (Randomized minute 0-59).
-  - Copy-ready code block.
 
 ### D. Settings / Profile ✅
 - Profile Dropdown (User/Signout).
