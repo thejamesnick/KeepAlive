@@ -15,9 +15,9 @@ export function generateProjectId(): string {
 
 /**
  * Generates a secure API Token for authentication.
- * Example: kal_live_9s8d7f6g5h4j3k2l1...
+ * Example: keep_live_9s8d7f6g5h4j3k2l1...
  */
 export function generateApiToken(): string {
     // 32 chars of high entropy
-    return `kal_live_${nanoid(32)}`;
+    return `keep_live_${nanoid(32)}`;
 }

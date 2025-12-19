@@ -8,12 +8,37 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { NewProjectModal } from "@/components/NewProjectModal";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SettingsModal } from "@/components/SettingsModal";
+import { generateProjectId, generateApiToken } from "@/lib/generators";
 
 // Initial Mock Data
 const INITIAL_PROJECTS = [
-    { id: 1, name: "KeepAlive Self-Check", status: "active", lastPing: "2 mins ago", nextPing: "Tuesday 00:00" },
-    { id: 2, name: "Portfolio Site V1", status: "active", lastPing: "1 hour ago", nextPing: "Tuesday 00:00" },
-    { id: 3, name: "Crypto Bot Demo", status: "dead", lastPing: "8 days ago", nextPing: "-" },
+    {
+        id: 1,
+        name: "KeepAlive Self-Check",
+        status: "active",
+        lastPing: "2 mins ago",
+        nextPing: "Tuesday 00:00",
+        projectId: "kp_self_check_01",
+        apiToken: "keep_live_demo_token_123"
+    },
+    {
+        id: 2,
+        name: "Portfolio Site V1",
+        status: "active",
+        lastPing: "1 hour ago",
+        nextPing: "Tuesday 00:00",
+        projectId: "kp_portfolio_02",
+        apiToken: "keep_live_demo_token_456"
+    },
+    {
+        id: 3,
+        name: "Crypto Bot Demo",
+        status: "dead",
+        lastPing: "8 days ago",
+        nextPing: "-",
+        projectId: "kp_crypto_03",
+        apiToken: "keep_live_demo_token_789"
+    },
 ];
 
 export default function Dashboard() {
@@ -26,27 +51,35 @@ export default function Dashboard() {
     const [currentProject, setCurrentProject] = useState<any>(null);
     const [hasCopiedAll, setHasCopiedAll] = useState(false);
 
-    // Mock Secrets Generator (Consistent for demo)
-    const getSecrets = (id: string | number) => ({
-        PROJECT_ID: `kp_${id}_${Math.random().toString(36).substr(2, 9)}`,
-        TOKEN: `kal_live_${Math.random().toString(36).substr(2, 12)}`,
+    // State to hold secrets for the *currently viewed* project
+    const [activeSecrets, setActiveSecrets] = useState({
+        PROJECT_ID: "",
+        TOKEN: "",
         ENDPOINT: "https://keepalive.app/api/ping"
     });
-
-    // State to hold secrets for the *currently viewed* project
-    const [activeSecrets, setActiveSecrets] = useState(getSecrets("new"));
 
     const openNewProject = () => {
         setNewProjectName("");
         setModalStep(1);
         setCurrentProject(null);
+        // Reset secrets for new project (will be generated on submit)
+        setActiveSecrets({
+            PROJECT_ID: "Generating...",
+            TOKEN: "Generating...",
+            ENDPOINT: "https://keepalive.app/api/ping"
+        });
         setIsModalOpen(true);
     };
 
     const openExistingProject = (project: any) => {
         setNewProjectName(project.name);
         setCurrentProject(project);
-        setActiveSecrets(getSecrets(project.id)); // Generate deterministic secrets for demo
+        // Load the PERSISTED secrets for this project
+        setActiveSecrets({
+            PROJECT_ID: project.projectId,
+            TOKEN: project.apiToken,
+            ENDPOINT: "https://keepalive.app/api/ping"
+        });
         setModalStep(2); // Jump straight to integration view
         setIsModalOpen(true);
     };
@@ -56,26 +89,39 @@ export default function Dashboard() {
         setNewProjectName("");
         setModalStep(1);
         setHasCopiedAll(false);
-        setCurrentProject(null); // Reset current project on close
+        setCurrentProject(null);
     };
 
     const handleCreateProject = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newProjectName.trim()) return;
 
+        // Generate secrets ONCE per project creation
+        const newProjectId = generateProjectId();
+        const newApiToken = generateApiToken();
+
         // Create the new project in state
         const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
         const newProj = {
             id: newId,
             name: newProjectName,
-            status: "active", // Assume active for demo positive feedback
-            lastPing: "Just now",
-            nextPing: "Tuesday 00:00"
+            status: "active",
+            lastPing: "Waiting...",
+            nextPing: "Tuesday 00:00",
+            projectId: newProjectId,   // STORE IT
+            apiToken: newApiToken     // STORE IT
         };
 
         setProjects([...projects, newProj]);
         setCurrentProject(newProj);
-        setActiveSecrets(getSecrets(newId));
+
+        // Update the modal view to show these new secrets
+        setActiveSecrets({
+            PROJECT_ID: newProjectId,
+            TOKEN: newApiToken,
+            ENDPOINT: "https://keepalive.app/api/ping"
+        });
+
         setModalStep(2);
     };
 
