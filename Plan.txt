@@ -10,8 +10,15 @@
 
 ---
 
-## 1. Database Schema (Supabase)
+## 📅 Current Status (Dec 2025)
+- **Frontend**: ✅ Complete (Landing, Dashboard, Wizard, Profile UI).
+- **Design**: ✅ Complete (Minimalist, Apple-style).
+- **Backend**: 🚧 Pending (Supabase Setup, API Routes).
+- **Auth**: 🚧 Pending (Supabase Auth Integration).
 
+---
+
+## 1. Database Schema (Supabase) 🚧
 ### Table: `projects`
 - `id` (uuid, primary key)
 - `user_id` (uuid, foreign key to auth.users)
@@ -31,21 +38,7 @@
 
 ---
 
-## 1.5 Monetization Strategy (Future)
-**Free Tier**:
-* 2 Pings / Week (Tue, Thu)
-* Email Alerts only
-* 3 Projects Limit
-
-**Pro Tier ($5/mo)**:
-* Daily Pings
-* SMS / Slack Alerts
-* Unlimited Projects
-* Team Access
-
----
-
-## 2. API Endpoint (The Receiver)
+## 2. API Endpoint (The Receiver) 🚧
 path: `/app/api/ping`
 
 **Logic:**
@@ -56,46 +49,37 @@ path: `/app/api/ping`
 
 ---
 
-## 3. Frontend Pages (Dashboard)
+## 3. Frontend Pages (Dashboard) ✅
 
-### A. Landing / Login
+### A. Landing / Login ✅
 - Minimalist hero section: "Keep your free tiers alive."
-- Login button (Supabase Auth).
+- Login button (Supabase Auth connection pending).
 
-### B. Main Dashboard (`/dashboard`)
+### B. Main Dashboard (`/dashboard`) ✅
 - **Header**: "KeepAlive" logo (text only).
 - **List of Projects**:
-  - Simple table or grid.
-  - Columns: Name, Status Indicator, Last Ping, Next Ping (estimated).
-  - Status Indicators (Black/White style):
-    - ● (Filled Circle) = Active/Ok
-    - ○ (Hollow Circle) = No Data / Paused
-    - ⊗ (Values) = Error
+  - Grid Layout with Squircle Cards.
+  - Status Indicators (Pulse Dot).
+  - Copy/View Credentials functionality.
 
-### C. "New Project" Flow
-1. **Create**: User enters "Project Name".
-2. **Setup Screen** (The "Integration" step):
-   - **Step 1**: Copy these 3 Secrets to your GitHub Repo:
-     - `KEEPALIVE_PROJECT_ID`: `[Auto-Generated UUID]`
-     - `KEEPALIVE_TOKEN`: `[Auto-Generated-Key]`
-     - `KEEPALIVE_ENDPOINT`: `https://keepalive.app/api/ping`
-   - **Step 2**: Create `.github/workflows/keepalive.yml`
-   - **Step 3**: Paste this code:
-     - [Code Block displays the content of `Examples/keepalive.yml.txt` dynamically]
-     - *Bonus*: A "Copy to Clipboard" button.
+### C. "New Project" Flow (Wizard) ✅
+- **Step 1**: Create (Name Input).
+- **Step 2**: Secrets (Credentials Display).
+  - `KEEPALIVE_PROJECT_ID`
+  - `KEEPALIVE_TOKEN`
+  - `KEEPALIVE_ENDPOINT`
+- **Step 3**: Workflow (YAML Generation).
+  - Dynamic Cron Schedule (Randomized minute 0-59).
+  - Copy-ready code block.
 
-### D. Project Details (`/dashboard/[id]`)
-- Shows ping history (simple list of dates).
-- "Manual Run" button (Future Phase).
-- Delete Project button.
+### D. Settings / Profile ✅
+- Profile Dropdown (User/Signout).
+- Settings Modal (Placeholder for future account management).
 
 ---
 
-## 4. Visual Design Rules
+## 4. Visual Design Rules ✅
 - Background: `#ffffff` (White)
 - Text: `#000000` (Black)
-- Borders: Subtle, 1px solid #e5e5e5 (light gray) or black for focus.
 - **Components**: Apple-style "Squircle" cards (smooth corners).
-- **Typography**:
-  - UI/Headings: **Inter** (Clean, legible).
-  - Data/Secrets: **Monospace** (Geist Mono or Courier).
+- **Typography**: Inter (UI) + Geist Mono (Code).
