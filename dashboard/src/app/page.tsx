@@ -1,4 +1,17 @@
+"use client";
+
 import Logo from "@/components/Logo";
+import Link from "next/link";
+// FeatureCard is defined locally below
+
+function FeatureCard({ title, desc }: { title: string, desc: string }) {
+  return (
+    <div className="p-6 rounded-[24px] bg-neutral-50 dark:bg-white/5 border border-neutral-200 dark:border-white/10 hover:border-black/20 dark:hover:border-white/30 transition-colors">
+      <h3 className="font-bold mb-2 tracking-tight">{title}</h3>
+      <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed font-mono text-xs">{desc}</p>
+    </div>
+  )
+}
 
 export default function Home() {
   return (
@@ -10,9 +23,9 @@ export default function Home() {
           <Logo className="w-6 h-6" />
           KeepAlive
         </div>
-        <a href="/login" className="text-sm font-medium hover:underline underline-offset-4">
+        <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4">
           Login
-        </a>
+        </Link>
       </header>
 
       <main className="flex-grow flex flex-col items-center justify-center text-center px-4 max-w-4xl space-y-12 pt-20 pb-20">
@@ -33,9 +46,9 @@ export default function Home() {
 
         {/* CTA Section */}
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <button className="h-12 px-8 rounded-full bg-black text-white dark:bg-white dark:text-black font-medium hover:scale-105 active:scale-95 transition-all duration-200">
+          <Link href="/login" className="h-12 px-8 rounded-full bg-black text-white dark:bg-white dark:text-black font-medium hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center">
             Get Started
-          </button>
+          </Link>
           <button className="h-12 px-8 rounded-full border border-neutral-200 dark:border-neutral-800 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-all duration-200">
             View on GitHub
           </button>
@@ -64,13 +77,4 @@ export default function Home() {
       </footer>
     </div>
   );
-}
-
-function FeatureCard({ title, desc }: { title: string, desc: string }) {
-  return (
-    <div className="p-6 rounded-[24px] bg-neutral-50 dark:bg-white/5 border border-neutral-200 dark:border-white/10 hover:border-black/20 dark:hover:border-white/30 transition-colors">
-      <h3 className="font-bold mb-2 tracking-tight">{title}</h3>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed font-mono text-xs">{desc}</p>
-    </div>
-  )
 }

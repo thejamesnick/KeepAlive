@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/Button";
 import { Plus } from "lucide-react";
 import { ProjectCard } from "@/components/ProjectCard";
+import { ProjectSkeleton } from "@/components/ProjectSkeleton";
 import { NewProjectModal } from "@/components/NewProjectModal";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SettingsModal } from "@/components/SettingsModal";
 import { generateProjectId, generateApiToken } from "@/lib/generators";
 
 // Initial Mock Data
+// We include secrets here to simulate they are stored in the DB
 const INITIAL_PROJECTS = [
     {
         id: 1,
@@ -42,7 +44,10 @@ const INITIAL_PROJECTS = [
 ];
 
 export default function Dashboard() {
+    // Initial fetch simulation logic
     const [projects, setProjects] = useState(INITIAL_PROJECTS);
+    const [isLoading, setIsLoading] = useState(true);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState(1);
     const [newProjectName, setNewProjectName] = useState("");
@@ -50,6 +55,14 @@ export default function Dashboard() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [currentProject, setCurrentProject] = useState<any>(null);
     const [hasCopiedAll, setHasCopiedAll] = useState(false);
+
+    // Simulate Data Fetching Delay
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
 
     // State to hold secrets for the *currently viewed* project
     const [activeSecrets, setActiveSecrets] = useState({
@@ -164,21 +177,33 @@ export default function Dashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {projects.map((project) => (
-                        <ProjectCard
-                            key={project.id}
-                            project={project}
-                            onClick={() => openExistingProject(project)}
-                        />
-                    ))}
+                    {isLoading ? (
+                        <>
+                            {/* Render Skeletons during loading state */}
+                            <ProjectSkeleton />
+                            <ProjectSkeleton />
+                            <ProjectSkeleton />
+                        </>
+                    ) : (
+                        <>
+                            {/* Render Actual Projects */}
+                            {projects.map((project) => (
+                                <ProjectCard
+                                    key={project.id}
+                                    project={project}
+                                    onClick={() => openExistingProject(project)}
+                                />
+                            ))}
 
-                    <button
-                        onClick={openNewProject}
-                        className="group h-40 rounded-[20px] border border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 text-neutral-400 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white transition-all"
-                    >
-                        <Plus className="w-8 h-8 font-light" />
-                        <span className="text-sm font-medium">Add Project</span>
-                    </button>
+                            <button
+                                onClick={openNewProject}
+                                className="group h-40 rounded-[20px] border border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 text-neutral-400 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white transition-all"
+                            >
+                                <Plus className="w-8 h-8 font-light" />
+                                <span className="text-sm font-medium">Add Project</span>
+                            </button>
+                        </>
+                    )}
                 </div>
             </main>
 
