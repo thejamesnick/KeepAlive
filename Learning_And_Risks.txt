@@ -1,0 +1,51 @@
+# What We Will Learn & Bugs We Will Fight
+
+Building KeepAlive is deceptively simple. It looks like "just a ping," but it touches on core distributed system concepts.
+
+## 🧠 What We Will Learn
+
+### 1. The "Headless" Agent Pattern
+You are building a system where the "workers" (GitHub Actions) are completely decoupled from the "boss" (Dashboard).
+*   **Lesson**: How to design stateless agents that just "do their job and report back" without needing constant connection.
+*   **Skill**: Designing robust API contracts (the JSON payload) that can't break even if the dashboard changes.
+
+### 2. GitHub Actions Deep Dive
+Most people use Actions for CI/CD. We are using it as a **Serverless Cron Job**.
+*   **Lesson**: `workflow_dispatch` vs `schedule`, passing data between steps using `$GITHUB_OUTPUT`, and securely handling secrets in a public repo context.
+
+### 3. "Trust-Me" Security
+We are verifying pings using a simple Bearer token pattern.
+*   **Lesson**: How to implement lightweight API authentication (API Keys) in Next.js App Router without heavy middleware.
+
+### 4. Timeseries Data Visualization (Miniature)
+We have to show "History of Pings."
+*   **Lesson**: Handling timestamps (UTC vs Local) is always harder than it looks. "Did it ping *today*?" is a complex question when "today" changes depending on where the user is.
+
+### 5. Strict Minimalist Design
+*   **Lesson**: Making a UI look "expensive" using only Black & White + Inter font. It forces you to rely on spacing, typography, and "Squircle" polished corners rather than fancy colors.
+
+---
+
+## 🐛 Bugs & Challenges We Might Encounter
+
+### 1. The "GitHub Cron Delay" (The Classic)
+**The Bug**: You set the cron to `0 0 * * *` (midnight), but it runs at `00:23`.
+**The Reality**: GitHub Free tier schedules are *requests*, not guarantees. They often lag during high-traffic times.
+**The Fix**: Our dashboard logic shouldn't count a ping as "Missed" just because it's 10 minutes late. We need a "grace period" window.
+
+### 2. The Thundering Herd
+**The Bug**: If you have 100 projects and they all wake up at 00:00:00 to ping your Dashboard...
+**The Reality**: Your Dashboard API might crash or hitting database connection limits.
+**The Fix**: "Jitter." We might need to tell users to pick a random minute (e.g., `14 0 * * *`) instead of everyone using `0 0`.
+
+### 3. "It works on my machine" (Network Egress)
+**The Bug**: The `curl` works locally but fails in GitHub Actions.
+**The Reality**: Sometimes enterprise firewalls or specific cloud blocking happens. Usually Supabase is fine, but sometimes GitHub IPs get flagged.
+
+### 4. Timezone Hell
+**The Bug**: The Dashboard says "Last ping: Yesterday" but the user just saw it run.
+**The Reality**: The GitHub runner is UTC. The Database is UTC. The Browser is Local time. somewhere in that chain, we will mess up a conversion.
+
+### 5. Secret Invisible Characters
+**The Bug**: Auth fails even though the token looks correct.
+**The Reality**: Copy-pasting from a terminal often includes a hidden `\n` (newline) at the end of the secret string. We need to `.trim()` everything on the server.

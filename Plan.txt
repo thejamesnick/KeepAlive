@@ -1,0 +1,86 @@
+# KeepAlive Build Plan
+
+## Technology Stack
+- **Framework**: Next.js (App Router) - Handles both the UI and the API endpoint.
+- **Language**: TypeScript
+- **Package Manager**: Yarn
+- **Styling**: Tailwind CSS (Strict "Black & White" minimalist theme, Squrcle cards, and proper model like Apple yh?)
+- **Database**: Supabase (Postgres)
+- **Auth**: Supabase Auth (GitHub or Email, Google)
+
+---
+
+## 1. Database Schema (Supabase)
+
+### Table: `projects`
+- `id` (uuid, primary key)
+- `user_id` (uuid, foreign key to auth.users)
+- `name` (text) - generic name e.g. "My Side Project"
+- `slug` (text) - unique identifier for URLs
+- `api_token` (text/uuid) - Warning: Shown once or hash stored? (For simplicity MVP: Store generated UUID)
+- `last_ping_at` (timestamp)
+- `status` (text) - 'active', 'at_risk', 'dead'
+
+### Table: `pings`
+- `id` (uuid)
+- `project_id` (uuid)
+- `created_at` (timestamp)
+- `success` (boolean)
+- `latency` (int) - optional
+
+---
+
+## 2. API Endpoint (The Receiver)
+path: `/app/api/ping`
+
+**Logic:**
+1. Receive POST request with `{ "project_id": "...", "status": "ok" }`.
+2. Verify `Authorization` header matches the project's token.
+3. Insert row into `pings` table.
+4. Update `last_ping_at` on `projects` table.
+
+---
+
+## 3. Frontend Pages (Dashboard)
+
+### A. Landing / Login
+- Minimalist hero section: "Keep your free tiers alive."
+- Login button (Supabase Auth).
+
+### B. Main Dashboard (`/dashboard`)
+- **Header**: "KeepAlive" logo (text only).
+- **List of Projects**:
+  - Simple table or grid.
+  - Columns: Name, Status Indicator, Last Ping, Next Ping (estimated).
+  - Status Indicators (Black/White style):
+    - ● (Filled Circle) = Active/Ok
+    - ○ (Hollow Circle) = No Data / Paused
+    - ⊗ (Values) = Error
+
+### C. "New Project" Flow
+1. **Create**: User enters "Project Name".
+2. **Setup Screen** (The "Integration" step):
+   - **Step 1**: Copy these 3 Secrets to your GitHub Repo:
+     - `KEEPALIVE_PROJECT_ID`: `[Auto-Generated UUID]`
+     - `KEEPALIVE_TOKEN`: `[Auto-Generated-Key]`
+     - `KEEPALIVE_ENDPOINT`: `https://keepalive.app/api/ping`
+   - **Step 2**: Create `.github/workflows/keepalive.yml`
+   - **Step 3**: Paste this code:
+     - [Code Block displays the content of `Examples/keepalive.yml.txt` dynamically]
+     - *Bonus*: A "Copy to Clipboard" button.
+
+### D. Project Details (`/dashboard/[id]`)
+- Shows ping history (simple list of dates).
+- "Manual Run" button (Future Phase).
+- Delete Project button.
+
+---
+
+## 4. Visual Design Rules
+- Background: `#ffffff` (White)
+- Text: `#000000` (Black)
+- Borders: Subtle, 1px solid #e5e5e5 (light gray) or black for focus.
+- **Components**: Apple-style "Squircle" cards (smooth corners).
+- **Typography**:
+  - UI/Headings: **Inter** (Clean, legible).
+  - Data/Secrets: **Monospace** (Geist Mono or Courier).

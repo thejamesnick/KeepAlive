@@ -1,0 +1,241 @@
+# KeepAlive
+
+## What is KeepAlive?
+
+KeepAlive is a **free, lightweight reliability tool** designed for developers and founders who ship multiple MVPs on free infrastructure tiers (e.g. Supabase Free, Render Free, Neon Free).
+
+Its purpose is simple:
+
+> **Prevent surprise downtime by ensuring projects remain active and observable.**
+
+KeepAlive does **not** bypass platform rules, abuse resources, or hide activity. It operates through **legitimate, minimal health checks** and clear visibility.
+
+---
+
+## The Problem KeepAlive Solves
+
+Many modern developer platforms pause or sleep free-tier projects after a period of inactivity.
+
+Common issues developers face:
+
+* Databases pause silently after inactivity
+* Demo links break unexpectedly
+* Side projects appear “dead” even though nothing changed
+* Founders only notice the problem when users complain
+* Managing many small projects becomes unreliable
+
+This is not a Supabase-only issue; it affects most free-tier infrastructure.
+
+---
+
+## Important Clarification (Very Important)
+
+> **Having users or accounts does NOT guarantee your database will stay active.**
+
+On platforms like Supabase Free:
+
+* A project is paused based on **database activity**, not user count
+* If no queries hit the database for ~7 days, it may be paused
+* A project with users can still be paused if those users are inactive
+
+KeepAlive addresses this exact gap.
+
+---
+
+## How KeepAlive Works (High Level)
+
+1. Each project runs a **very small, read-only health check** on a schedule
+2. The check confirms the database is reachable and active
+3. The result is optionally reported to a central dashboard
+4. Developers get visibility into which projects are healthy, at risk, or paused
+
+All activity is:
+
+* Low frequency (e.g. every 48 hours)
+* Read-only
+* Transparent
+* Platform-compliant
+
+---
+
+## What KeepAlive Is NOT
+
+KeepAlive is not:
+
+* A hack or exploit
+* A way to bypass platform pricing
+* A high-traffic bot
+* A replacement for upgrading when you have real users
+
+If a project has traction, the correct action is to upgrade the infrastructure.
+
+---
+
+## Who KeepAlive Is For
+
+* Indie hackers shipping many experiments
+* Startup studios managing multiple MVPs
+* Agencies running client demos
+* Builders who want peace of mind, not complexity
+
+---
+
+## Core Principles
+
+* Free-first
+* Minimal resource usage
+* No vendor lock-in
+* Clear separation of concerns
+* Developer-owned credentials
+
+---
+
+## Why KeepAlive Exists
+
+KeepAlive exists to solve a **small but costly reliability problem**:
+
+> *"Everything was working yesterday — why is it down today?"*
+
+By providing lightweight health checks and visibility, KeepAlive removes surprises and restores confidence in early-stage projects.
+
+---
+
+## Technical Architecture (Agreed Design)
+
+### Core Components
+
+KeepAlive is composed of three simple, decoupled components:
+
+1. **Project-level GitHub Actions** (execution layer)
+2. **Supabase database being monitored** (target)
+3. **Optional central KeepAlive Dashboard** (visibility layer)
+
+Each component has a single responsibility.
+
+---
+
+### 1. Project-Level GitHub Action
+
+Every project that uses Supabase Free has **its own GitHub Action**.
+
+Responsibilities:
+
+* Run on a low-frequency schedule (recommended: every 48 hours)
+* Execute a **read-only Supabase query** using that project’s credentials
+* Report the result to the KeepAlive dashboard
+
+Key properties:
+
+* Lives inside the project’s own repository
+* Fully autonomous (no central scheduler dependency)
+* Uses GitHub Secrets for all credentials
+
+* `KEEPALIVE_PROJECT_ID`
+* `KEEPALIVE_TOKEN`
+* `KEEPALIVE_ENDPOINT`
+* **Database Credentials** (depends on provider):
+  * Supabase: `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+  * Neon/Render/Others: `DATABASE_URL` (Connection string)
+
+---
+
+### 2. Database Health Check
+
+The action performs a minimal, legitimate query depending on the provider:
+
+* **Supabase**: `SELECT now()` via REST API (curl)
+* **Postgres (Neon/Render)**: `SELECT 1` via `psql` (built-in to GitHub runners)
+* **MySQL/Others**: Equivalent lightweight ping
+
+Constraints:
+
+* Read-only
+* No data writes
+* No heavy joins
+* No frequent polling
+
+Purpose:
+
+* Confirm the database is reachable
+* Reset inactivity timer
+* Detect paused projects early
+
+---
+
+### 3. KeepAlive Dashboard (Optional but Recommended)
+
+The dashboard provides **central visibility** across many projects.
+
+* Store Supabase credentials
+* Query user databases directly
+
+It only receives **ping results** from projects.
+
+(Note: In Phase 2, we can add a button to trigger checks, but for now it's purely read-only).
+
+Stored data:
+
+* Project metadata (name, repo URL)
+* Last successful ping timestamp
+* Current status (healthy / at risk / paused)
+* Error metadata (if any)
+
+---
+
+### Reporting Contract
+
+Each GitHub Action reports a small JSON payload:
+
+```json
+{
+  "project_id": "abc123",
+  "status": "ok",
+  "checked_at": "2025-12-19T12:00:00Z",
+  "latency_ms": 210,
+  "error": null
+}
+```
+
+No secrets are ever transmitted.
+
+---
+
+### Status Evaluation Logic
+
+The dashboard infers state using timestamps:
+
+* **Healthy**: last ping < 5 days
+* **At Risk**: last ping 5–6 days
+* **Paused / Broken**: no ping ≥ 7 days
+
+This mirrors free-tier inactivity rules without relying on vendor APIs.
+
+---
+
+### Security Model
+
+* Supabase credentials remain in their owning repositories
+* Only anon (read-only) keys are used
+* Dashboard endpoints are protected by per-project tokens
+* No cross-project access is possible
+
+---
+
+### Compliance Principles
+
+* Low-frequency execution
+* Transparent behavior
+* No artificial traffic inflation
+* No attempts to bypass pricing tiers
+
+KeepAlive behaves like a standard infrastructure health check.
+
+---
+
+## Summary
+
+* KeepAlive solves silent free-tier pauses using legitimate health checks
+* Users alone do not prevent infrastructure pausing
+* Each project remains autonomous
+* A central dashboard provides clarity, not control
+* The system is free-first, compliant, and low-cost

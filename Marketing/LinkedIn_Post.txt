@@ -1,0 +1,95 @@
+# LinkedIn / "Bull Post" Drafts for KeepAlive
+
+Here are 3 styles of posts you can drop to make some noise.
+
+---
+
+## Option 1: The "Indie Hacker" (Raw & Relatable)
+**Hook:** The "Silent Death" of free-tier projects is real. 💀
+
+**Body:**
+I woke up yesterday to check a demo I built 3 weeks ago. It was down.
+Not because of a bug. Not because of traffic.
+But because I hadn't touched the database in 7 days, so the provider "paused" it to save resources.
+
+The crazy part? I had visitors on the site. But since they were just reading cached static pages, the DB thought it was being ignored.
+
+**Users ≠ Database Activity.**
+
+I didn’t want to upgrade to Pro ($25/mo) just for a side project.
+I didn't want to use a sketchy "uptime bot" that pings my site every minute.
+
+So I built **KeepAlive**.
+
+It’s a "Serverless Heartbeat" for your side projects.
+✅ Uses GitHub Actions (runs inside YOUR repo)
+✅ 0% Data Privacy Risk (I never see your DB credentials)
+✅ Standard Cron Schedule (Tue/Thu pings)
+✅ Keeps Supabase/Neon/Render active legally.
+
+It’s the simplest way to stop your portfolio from embarrassing you during a job interview.
+
+**CTA:**
+Building this in public. Who wants the repo link when it's ready? 👇
+
+#buildinpublic #webdev #supabase #indiehacker
+
+---
+
+## Option 2: The "Software Engineer" (Technical & Smart)
+**Hook:** Why I built a decentralized health-check system for my side projects. 🛠️
+
+**Body:**
+We all love the modern "Free Tier" (Supabase, Render, Neon). But they all share one aggressive policy: **Inactivity Pausing.**
+
+If your DB doesn't receive a query for ~7 days, it sleeps. This kills demos, legacy projects, and portfolio pieces.
+
+Existing solution: "Uptime Monitors."
+Problem: They only ping your frontend. If your frontend is Next.js (static), your DB still sleeps.
+
+My solution: **KeepAlive** ⚡️
+
+It’s a decentralized architecture:
+1. **The Agent**: A GitHub Action lives in *your* repo. It creates a legitimate, low-cost connection to your DB (e.g., `SELECT 1`).
+2. **The Dashboard**: A stateless Next.js app that simply catches the "I'm Alive" signal.
+
+**Why is this better?**
+Security.
+I don't hold your database credentials. You don't hand me your connection string. You own the infrastructure; I just provide the visibility.
+
+Dogfooding it right now to keep itself alive. 🚀
+
+**CTA:**
+Dropping the GitHub link soon. Thoughts on this architecture?
+
+#systemdesign #devops #githubactions #opensource
+
+---
+
+## Option 3: The "Bull Post" (Hype & Value) 🐂
+**Hook:** NEVER let your side projects die again. 🛑
+
+**Body:**
+Nothing is worse than sending a link to a client/investor and having it spin for 30 seconds because the database is "waking up" (or totally dead).
+
+It looks amateur. It kills conversion.
+
+I got tired of logging into 10 different Supabase dashboards just to "poke" the database active.
+
+So I automated it.
+
+**Enter: KeepAlive.**
+
+It’s a set-and-forget reliance tool.
+1. Add 1 file to your repo.
+2. It pings your DB twice a week.
+3. Your project stays online forever.
+
+Free tiers are great. Making them reliable is better.
+
+I'm making this open source. Stop paying $25/mo just to keep a mostly-idle project awake.
+
+**CTA:**
+Drop a "👋" if you want early access.
+
+#webdevelopment #saas #javascript #react #efficiency

@@ -1,0 +1,82 @@
+name: KeepAlive Service
+
+on:
+  schedule:
+    # Runs at 00:00 on Tuesday and Thursday
+    - cron: '0 0 * * 2,4' 
+  workflow_dispatch: # Allows you to run this manually from the GitHub Actions UI
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Check Database Health
+        id: check_db
+        run: |
+          STATUS="failed"
+          
+          # ------------------------------------------------------------------
+          # STRATEGY 1: SUPABASE (REST API)
+          # ------------------------------------------------------------------
+          if [ -n "${{ secrets.SUPABASE_URL }}" ]; then
+            echo "🔍 Detected Supabase credentials. Pinging via REST..."
+            
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              --request GET \
+              --url "${{ secrets.SUPABASE_URL }}/rest/v1/?select=now" \
+              --header "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+              --header "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            )
+            
+            echo "Status Code: $HTTP_CODE"
+            if [ "$HTTP_CODE" -eq 200 ]; then STATUS="ok"; fi
+          fi
+
+          # ------------------------------------------------------------------
+          # STRATEGY 2: STANDARD POSTGRES (Neon, Render, Railway, etc.)
+          # ------------------------------------------------------------------
+          # If a DATABASE_URL secret is present, we use psql.
+          if [ -n "${{ secrets.DATABASE_URL }}" ]; then
+             echo "🔍 Detected DATABASE_URL. Pinging via psql..."
+             
+             # Attempt to connect and run SELECT 1
+             if psql "${{ secrets.DATABASE_URL }}" -c "SELECT 1" > /dev/null 2>&1; then
+               echo "✅ psql connection successful."
+               STATUS="ok"
+             else
+               echo "❌ psql connection failed."
+             fi
+          fi
+          
+          # ------------------------------------------------------------------
+          # REPORTING
+          # ------------------------------------------------------------------
+          if [ "$STATUS" = "ok" ]; then
+            echo "✅ Database is active and healthy."
+            echo "status=ok" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Database check failed or no credentials found."
+            echo "status=failed" >> $GITHUB_OUTPUT
+            # We don't exit 1 here so we can still report to the dashboard
+          fi
+
+      - name: Report to KeepAlive Dashboard
+        if: always() # Always run this step to report success OR failure
+        run: |
+          echo "Reporting status to KeepAlive..."
+          
+          STATUS="${{ steps.check_db.outputs.status }}"
+          # Default to failed if undefined
+          if [ -z "$STATUS" ]; then STATUS="failed"; fi
+          
+          # Send the telemetry to the central dashboard
+          curl -s \
+            --request POST \
+            --url "${{ secrets.KEEPALIVE_ENDPOINT }}/api/ping" \
+            --header "Content-Type: application/json" \
+            --header "Authorization: Bearer ${{ secrets.KEEPALIVE_TOKEN }}" \
+            --data "{\"project_id\": \"${{ secrets.KEEPALIVE_PROJECT_ID }}\", \"status\": \"$STATUS\"}"
+          
+          echo "Report sent."
