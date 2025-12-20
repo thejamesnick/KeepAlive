@@ -50,9 +50,19 @@ jobs:
           STATUS="${{ steps.check_db.outputs.status }}"
           if [ -z "$STATUS" ]; then STATUS="failed"; fi
           
-          curl -s \
+          # Capture HTTP code and content
+          RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
             --request POST \
             --url "${{ secrets.KEEPALIVE_ENDPOINT }}/api/ping" \
             --header "Content-Type: application/json" \
             --header "Authorization: Bearer ${{ secrets.KEEPALIVE_TOKEN }}" \
-            --data "{\"project_id\": \"${{ secrets.KEEPALIVE_PROJECT_ID }}\", \"status\": \"$STATUS\"}"
+            --data "{\"project_id\": \"${{ secrets.KEEPALIVE_PROJECT_ID }}\", \"status\": \"$STATUS\"}")
+          
+          echo "Response from Dashboard:"
+          echo "$RESPONSE"
+          
+          # Fail if not 200
+          if [[ "$RESPONSE" != *"HTTP_CODE:200"* ]]; then
+             echo "::error::Failed to report to dashboard"
+             exit 1
+          fi
