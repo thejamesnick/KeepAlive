@@ -9,22 +9,27 @@ export default function Login() {
 
     const handleLogin = async (provider: 'github' | 'google') => {
         // 1. Determine the base URL (Production vs Localhost)
+        // 1. Determine the base URL
         const getUrl = () => {
+            // BEST PRACTICE: If we are in the browser, trust the browser.
+            if (typeof window !== 'undefined') {
+                return window.location.origin;
+            }
+
+            // Fallback for Server-Side Rendering (shouldn't happen in onClick, but safe to keep)
             let url =
-                process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your production URL in Vercel Env
-                process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel
+                process?.env?.NEXT_PUBLIC_SITE_URL ??
+                process?.env?.NEXT_PUBLIC_VERCEL_URL ??
                 'http://localhost:3000';
 
-            // Make sure to include `https://` when not localhost.
             url = url.includes('http') ? url : `https://${url}`;
-            // Make sure to include trailing `/`.
-            url = url.endsWith('/') ? url : `${url}/`;
+            url = url.endsWith('/') ? url.slice(0, -1) : url; // Strip trailing slash for consistency
             return url;
         };
 
         // FIX: Ensure we use the robust getUrl() and strip double slashes if needed
         const baseUrl = getUrl();
-        const redirectUrl = `${baseUrl}auth/callback`; // baseUrl has trailing slash
+        const redirectUrl = `${baseUrl}/auth/callback`; // baseUrl has NO trailing slash
 
         console.log("Attempting OAuth with Redirect:", redirectUrl);
 
