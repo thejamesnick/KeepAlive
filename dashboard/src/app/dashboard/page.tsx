@@ -74,7 +74,7 @@ export default function Dashboard() {
     const [activeSecrets, setActiveSecrets] = useState({
         PROJECT_ID: "",
         TOKEN: "",
-        ENDPOINT: "https://keepalive.app/api/ping"
+        ENDPOINT: ""
     });
 
     const openNewProject = () => {
@@ -84,7 +84,7 @@ export default function Dashboard() {
         setActiveSecrets({
             PROJECT_ID: "Generating...",
             TOKEN: "Generating...",
-            ENDPOINT: "https://keepalive.app/api/ping"
+            ENDPOINT: `${window.location.origin}/api/ping`
         });
         setIsModalOpen(true);
     };
@@ -97,7 +97,7 @@ export default function Dashboard() {
         setActiveSecrets({
             PROJECT_ID: project.project_id,
             TOKEN: project.api_token,
-            ENDPOINT: "https://keepalive.app/api/ping"
+            ENDPOINT: `${window.location.origin}/api/ping`
         });
         setModalStep(2);
         setIsModalOpen(true);
@@ -135,7 +135,7 @@ export default function Dashboard() {
         setActiveSecrets({
             PROJECT_ID: newProjectId,
             TOKEN: newApiToken,
-            ENDPOINT: "https://keepalive.app/api/ping"
+            ENDPOINT: `${window.location.origin}/api/ping`
         });
         setModalStep(2);
 
