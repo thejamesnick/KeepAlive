@@ -25,6 +25,31 @@ function formatRelativeTime(dateString: string | null) {
     return `${Math.floor(diffInSeconds / 86400)} days ago`;
 }
 
+// Estimate next run based on standard KeepAlive schedule (Tue/Thu)
+function calculateNextCheck() {
+    const now = new Date();
+    const day = now.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+
+    // If today is Tue (2) or Thu (4), assume next run is today later or next checkpoint
+    // Simple logic: Find next occurrence of Tue (2) or Thu (4)
+
+    let daysToAdd = 1;
+    for (let i = 1; i <= 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() + i);
+        if (d.getDay() === 2 || d.getDay() === 4) { // Tue or Thu
+            daysToAdd = i;
+            break;
+        }
+    }
+
+    const nextDate = new Date(now);
+    nextDate.setDate(now.getDate() + daysToAdd);
+
+    // Format: "Tue, Dec 23"
+    return nextDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
 export default function Dashboard() {
     const supabase = createClient();
     const [projects, setProjects] = useState<any[]>([]);
@@ -216,7 +241,7 @@ export default function Dashboard() {
                                         ...project,
                                         // Adapter for ProjectCard which expects 'lastPing' (camelCase)
                                         lastPing: formatRelativeTime(project.last_ping_at),
-                                        nextPing: project.status === 'active' ? 'Unknown' : '-' // Calculation can be added later
+                                        nextPing: project.status === 'active' ? calculateNextCheck() : '-'
                                     }}
                                     onClick={() => openExistingProject(project)}
                                 />
