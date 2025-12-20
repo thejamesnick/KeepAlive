@@ -57,3 +57,18 @@
 ## 🗄️ Database Deep Dives (From `schema.sql`)
 12. **The "Security Definer" Trick**: How we built `register_ping` to allow unauthenticated API tokens to write to the DB without breaking RLS.
 13. **Auto-Profile Triggers**: The PL/pgSQL function `handle_new_user` that automatically creates user profiles on signup (and why doing it in the app layer is a mistake).
+
+### 9. The "Dead Man's Switch" Architecture (Inverted Monitoring)
+*   **The Concept:** Traditional monitoring (UptimeRobot) *pulls* data (pings you). KeepAlive waits for you to *push* data.
+*   **The Win:** Zero firewall config, works on localhost, works behind proxies, and costs $0 because we don't run 24/7 pollers.
+*   **The Lesson:** Sometimes doing less (waiting) is more powerful than doing more (asking).
+
+### 10. Atomic State Transitions (SQL as the Brain)
+*   **The Concept:** Moving the logic of "is this project dead?" from the API (Node.js) into the Database (PL/pgSQL).
+*   **The Win:** We eliminated race conditions. Even if 100 pings hit at once, the Database acts as a single source of truth, locking the row and updating the status atomically.
+*   **The Lesson:** The API should be dumb; the Database should be smart.
+
+### 11. The "Copy-Paste" Developer Experience
+*   **The Concept:** Reducing integration time to 10 seconds.
+*   **The Win:** Instead of writing documentation ("Go configure a cron job..."), we generated the *exact* code (YAML) dynamically in the UI, pre-filled with the user's specific tokens.
+*   **The Lesson:** Don't tell users what to do. Give them the code to do it.
