@@ -12,16 +12,27 @@ export async function GET(request: Request) {
         const supabase = await createClient()
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (!error) {
-            const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
+            const forwardedHost = request.headers.get('x-forwarded-host')
             const isLocalEnv = process.env.NODE_ENV === 'development'
-            if (isLocalEnv) {
-                // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-                return NextResponse.redirect(`${origin}${next}`)
-            } else if (forwardedHost) {
-                return NextResponse.redirect(`https://${forwardedHost}${next}`)
-            } else {
-                return NextResponse.redirect(`${origin}${next}`)
+
+            // STRATEGY: 
+            // 1. Env Var (Best for Prod)
+            // 2. X-Forwarded-Host (Good for Vercel/proxies)
+            // 3. Origin (Fallback for Localhost)
+
+            let baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+            if (!baseUrl) {
+                if (isLocalEnv) {
+                    baseUrl = origin;
+                } else if (forwardedHost) {
+                    baseUrl = `https://${forwardedHost}`;
+                } else {
+                    baseUrl = origin;
+                }
             }
+
+            return NextResponse.redirect(`${baseUrl}${next}`)
         }
     }
 

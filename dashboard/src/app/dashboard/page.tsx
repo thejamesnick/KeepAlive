@@ -180,6 +180,7 @@ export default function Dashboard() {
                         isOpen={isProfileOpen}
                         setIsOpen={setIsProfileOpen}
                         onSettingsClick={() => setIsSettingsOpen(true)}
+                        userEmail={user?.email}
                     />
                 </div>
             </nav>
