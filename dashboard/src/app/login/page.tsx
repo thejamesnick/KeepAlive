@@ -22,7 +22,9 @@ export default function Login() {
             return url;
         };
 
-        const redirectUrl = `${window.location.origin}/auth/callback`;
+        // FIX: Ensure we use the robust getUrl() and strip double slashes if needed
+        const baseUrl = getUrl();
+        const redirectUrl = `${baseUrl}auth/callback`; // baseUrl has trailing slash
 
         console.log("Attempting OAuth with Redirect:", redirectUrl);
 
