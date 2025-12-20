@@ -43,18 +43,26 @@ jobs:
         run: |
           STATUS="failed"
           
-          # STRATEGY 1: SUPABASE (REST API)
-          if [ -n "\${{ secrets.SUPABASE_URL }}" ]; then
+          # 1. SUPABASE HEALTH CHECK
+          # Requires: SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in GitHub Secrets
+          SUPABASE_URL="\${{ secrets.SUPABASE_URL }}"
+          SUPABASE_KEY="\${{ secrets.SUPABASE_PUBLISHABLE_KEY }}"
+          
+          # Fallback to generic SUPABASE_KEY if PUBLISHABLE is missing
+          if [ -z "$SUPABASE_KEY" ]; then
+             SUPABASE_KEY="\${{ secrets.SUPABASE_KEY }}"
+          fi
+
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_KEY" ]; then
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \\
               --request GET \\
-              --url "\${{ secrets.SUPABASE_URL }}/rest/v1/?select=now" \\
-              --header "apikey: \${{ secrets.SUPABASE_ANON_KEY }}" \\
-              --header "Authorization: Bearer \${{ secrets.SUPABASE_ANON_KEY }}" \\
+              --url "$SUPABASE_URL/auth/v1/health" \\
+              --header "apikey: $SUPABASE_KEY" \\
             )
             if [ "$HTTP_CODE" -eq 200 ]; then STATUS="ok"; fi
           fi
 
-          # STRATEGY 2: POSTGRES
+          # 2. POSTGRES CONNECTION CHECK (DIRECT)
           if [ -n "\${{ secrets.DATABASE_URL }}" ]; then
              if psql "\${{ secrets.DATABASE_URL }}" -c "SELECT 1" > /dev/null 2>&1; then
                STATUS="ok"
@@ -176,7 +184,8 @@ export function NewProjectModal({
                                 <h2 className="text-xl font-bold tracking-tight">Get Credentials</h2>
                             </div>
                             <p className="text-sm text-neutral-500 mx-5">
-                                Add these as <a href="#" className="underline decoration-neutral-300 hover:text-black dark:hover:text-white hover:decoration-black dark:hover:decoration-white underline-offset-2 transition-all">Repository Secrets</a> in GitHub.
+                                Add these <b>KeepAlive Keys</b> to your GitHub Secrets. <br />
+                                <span className="text-xs opacity-70">(Ensure you also have <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">SUPABASE_URL</code> & <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">SUPABASE_PUBLISHABLE_KEY</code> set if monitoring Supabase)</span>
                             </p>
                         </div>
 

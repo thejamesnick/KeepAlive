@@ -4,18 +4,25 @@ interface ProfileDropdownProps {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
     userEmail?: string;
+    avatarUrl?: string; // New Prop
     onSettingsClick?: () => void;
 }
 
-export function ProfileDropdown({ isOpen, setIsOpen, userEmail = "user@example.com", onSettingsClick }: ProfileDropdownProps) {
+export function ProfileDropdown({ isOpen, setIsOpen, userEmail = "user@example.com", avatarUrl, onSettingsClick }: ProfileDropdownProps) {
     return (
         <div className="relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2 focus:outline-none group"
             >
-                <div className="h-8 w-8 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-500 transition-colors group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700">
-                    <User className="w-4 h-4" />
+                {/* Avatar Circle */}
+                <div className="h-8 w-8 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-500 transition-colors group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 overflow-hidden">
+                    {avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    ) : (
+                        <User className="w-4 h-4" />
+                    )}
                 </div>
                 <div className="flex items-center gap-1.5 px-1">
                     <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">My Account</span>

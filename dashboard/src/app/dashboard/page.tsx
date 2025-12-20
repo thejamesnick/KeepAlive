@@ -153,8 +153,10 @@ export default function Dashboard() {
             setProjects(prev => prev.map(p => p.id === tempProject.id ? data : p));
             setCurrentProject(data);
         } else {
-            console.error("Creation failed:", error);
-            // Revert on error (optional)
+            console.error("FULL DATABASE ERROR:", error);
+            alert(`Failed to save project: ${error?.message}`);
+            // Remove the optimistic item to avoid confusion
+            setProjects(prev => prev.filter(p => p.id !== tempProject.id));
         }
     };
 
@@ -181,6 +183,7 @@ export default function Dashboard() {
                         setIsOpen={setIsProfileOpen}
                         onSettingsClick={() => setIsSettingsOpen(true)}
                         userEmail={user?.email}
+                        avatarUrl={user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
                     />
                 </div>
             </nav>
