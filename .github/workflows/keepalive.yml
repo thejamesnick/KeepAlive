@@ -32,13 +32,21 @@ jobs:
               --url "$SUPABASE_URL/auth/v1/health" \
               --header "apikey: $SUPABASE_KEY" \
             )
-            if [ "$HTTP_CODE" -eq 200 ]; then STATUS="ok"; fi
+            if [ "$HTTP_CODE" -eq 200 ]; then 
+                STATUS="ok"
+                echo "✅ Supabase Health Check: PASSED ($HTTP_CODE)"
+            else
+                echo "❌ Supabase Health Check: FAILED ($HTTP_CODE)"
+            fi
           fi
 
           # 2. POSTGRES CONNECTION CHECK (DIRECT)
           if [ -n "${{ secrets.DATABASE_URL }}" ]; then
              if psql "${{ secrets.DATABASE_URL }}" -c "SELECT 1" > /dev/null 2>&1; then
                STATUS="ok"
+               echo "✅ Postgres Connection Check: PASSED"
+             else
+               echo "❌ Postgres Connection Check: FAILED"
              fi
           fi
           
@@ -63,6 +71,9 @@ jobs:
           
           # Fail if not 200
           if [[ "$RESPONSE" != *"HTTP_CODE:200"* ]]; then
+             echo "❌ Dashboard Report: FAILED"
              echo "::error::Failed to report to dashboard"
              exit 1
+          else
+             echo "✅ Dashboard Report: SUCCESS"
           fi
