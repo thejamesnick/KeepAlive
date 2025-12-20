@@ -78,9 +78,9 @@ jobs:
           if [ -z "$STATUS" ]; then STATUS="failed"; fi
           
           # Capture HTTP code and content
-          RESPONSE=$(curl -s -w "\\nHTTP_CODE:%{http_code}" \\
+          RESPONSE=$(curl -s -L -w "\\nHTTP_CODE:%{http_code}" \\
             --request POST \\
-            --url "\${{ secrets.KEEPALIVE_ENDPOINT }}/api/ping" \\
+            --url "\${{ secrets.KEEPALIVE_ENDPOINT }}" \\
             --header "Content-Type: application/json" \\
             --header "Authorization: Bearer \${{ secrets.KEEPALIVE_TOKEN }}" \\
             --data "{\\"project_id\\": \\"\${{ secrets.KEEPALIVE_PROJECT_ID }}\\", \\"status\\": \\"$STATUS\\"}")
