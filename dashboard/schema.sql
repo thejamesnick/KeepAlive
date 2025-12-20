@@ -78,7 +78,7 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- 6. RPC FUNCTION: Register Ping (Securely bypasses RLS)
-create or replace function public.register_ping(token text)
+create or replace function public.register_ping(token text, success boolean)
 returns jsonb
 language plpgsql
 security definer -- << This runs as Admin (bypasses RLS)
@@ -99,12 +99,14 @@ begin
 
   -- 3. Insert Ping
   insert into public.pings (project_id, success, latency_ms)
-  values (target_project_id, true, 0); 
+  values (target_project_id, success, 0); 
 
-  -- 4. Update Project Last Ping
+  -- 4. Update Project Last Ping (Only if success, or maybe always? Usually "Last Ping" implies "Last Contact")
+  -- We update last_ping_at regardless of success to show we heard from it.
+  -- But we only set status to 'active' if it was a success.
   update public.projects
   set last_ping_at = now(),
-      status = 'active' -- Revive it if it was dead
+      status = case when success then 'active' else status end
   where id = target_project_id;
 
   return jsonb_build_object('success', true, 'project_id', target_project_id);

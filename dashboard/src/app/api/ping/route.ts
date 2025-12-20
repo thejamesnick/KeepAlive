@@ -14,8 +14,24 @@ export async function POST(request: NextRequest) {
 
     const token = authHeader.split(' ')[1]; // Extract 'keep_live_xyz...'
 
-    // 2. Call RPC Function (Securely bypasses RLS)
-    const { data, error } = await supabase.rpc('register_ping', { token });
+    // 2. Parse Status from Body
+    let isSuccess = true;
+    try {
+        const body = await request.json();
+        // If status is provided, check if it's 'ok'
+        if (body && body.status) {
+            isSuccess = body.status === 'ok';
+        }
+    } catch (e) {
+        // Body reading failed or empty, default to true or handle gracefully
+        // For now, we assume if we got a ping, it's a heartbeat unless stated otherwise
+    }
+
+    // 3. Call RPC Function (Securely bypasses RLS)
+    const { data, error } = await supabase.rpc('register_ping', {
+        token,
+        success: isSuccess
+    });
 
     if (error) {
         console.error('Ping Error:', error);
