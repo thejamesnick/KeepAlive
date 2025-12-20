@@ -1,0 +1,72 @@
+# CONTENT GENERATION RULES (The "Platinum Standard")
+
+This is the strict rulebook for generating content in the `/Content/Bank/` folder.
+Every MD file must follow this structure exactly.
+
+---
+
+## 1. FILE NAMING
+*   **Format:** `Content/Bank/XX_Topic_Name.md`
+*   **Example:** `01_Ghost_Session_Race_Condition.md`
+
+## 2. SECTION 1: THE DEVLOG (The Deep Dive)
+*   **Word Source:** 800 - 1000 words.
+*   **Structure:**
+    1.  **Context:** Set the scene. "I was building X."
+    2.  **The Spark:** The moment it broke or the moment of idea.
+    3.  **The Friction (Crucial):** Explain *why* it was hard. Explain the "False Leads" (e.g., "I thought it was X, but it was Y"). Explain *why* existing tools failed.
+    4.  **The Investigation:** Technical details. Mention specific error codes, logs, or tools used.
+    5.  **The Vision/Fix:** The solution.
+    6.  **The Architecture:** How it works under the hood.
+    7.  **The Takeaway:** A high-level philosophy/lesson.
+*   **Tone:** Analytical, vulnerable ("I made a mistake"), authoritative ("Here is the fix").
+
+## 3. SECTION 2: THE BIP (The Narrative Pulse)
+*   **Length:** 150 - 250 words.
+*   **Structure:**
+    *   **Anchor:** What are you working on?
+    *   **Pulse:** What specifically happened today?
+    *   **Signal:** What did you learn? (The insight).
+    *   **Direction:** What is next?
+*   **Tone:** "In the trenches." Fast.
+
+## 4. SECTION 3: THE CODEBITE (The Technical Snack)
+*   **Headline:** Punchy Technical Title (e.g., "The Dead Man's Switch").
+*   **Challenge:** 1 sentence problem.
+*   **Hint:** The mental model shift.
+*   **Snippet:** 5-15 lines of code. Heavily commented.
+*   **Mini Lesson:** Why this snippet is better than the alternative.
+
+## 5. SECTION 4: LINKEDIN POST (Professional)
+*   **Vibe:** Thought Leadership.
+*   **Structure:**
+    *   **Hook:** Counter-intuitive statement or Confession.
+    *   **Problem:** detailed breakdown of the business/engineering cost.
+    *   **Solution:** The strategic fix.
+    *   **Result:** The outcome.
+    *   **Tags:** #Hashtags.
+
+## 6. SECTION 5: TWITTER THREAD (Viral Hook)
+*   **Vibe:** Threadboy / Value-Dense.
+*   **Structure:**
+    *   **Tweet 1:** The Hook (Visual + Conflict).
+    *   **Tweet 2-3:** The Problem & Trap.
+    *   **Tweet 4-6:** The Solution / How it works.
+    *   **Tweet 7:** The Aesthetic/Vibe.
+    *   **Tweet 8:** CTA.
+
+## 7. SECTION 6: THREADS (Meta / Casual)
+*   **Vibe:** Developer Coffee Chat. Relatable.
+*   **Structure:**
+    *   **Post 1:** "Does anyone else...?" (Relatable struggle).
+    *   **Post 2:** "I found out that..." (Shared learning).
+    *   **Post 3:** "So I built..." (Casual share).
+    *   **Post 4:** Vibe check / Feedback question.
+
+---
+**QUALITY CHECKS:**
+*   Does the DevLog have technical depth? (Yes/No)
+*   Is the BIP narrative? (Yes/No)
+*   Does the LinkedIn post sound professional? (Yes/No)
+*   Does the Threads post sound chill? (Yes/No)
+*   Are CodeBites distinct from the prose? (Yes/No)

@@ -8,10 +8,28 @@ export default function Login() {
     const supabase = createClient();
 
     const handleLogin = async (provider: 'github' | 'google') => {
+        // 1. Determine the base URL (Production vs Localhost)
+        const getUrl = () => {
+            let url =
+                process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your production URL in Vercel Env
+                process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel
+                'http://localhost:3000';
+
+            // Make sure to include `https://` when not localhost.
+            url = url.includes('http') ? url : `https://${url}`;
+            // Make sure to include trailing `/`.
+            url = url.endsWith('/') ? url : `${url}/`;
+            return url;
+        };
+
+        const redirectUrl = `${window.location.origin}/auth/callback`;
+
+        console.log("Attempting OAuth with Redirect:", redirectUrl);
+
         await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: `${window.location.origin}/auth/callback`
+                redirectTo: redirectUrl
             }
         });
     };

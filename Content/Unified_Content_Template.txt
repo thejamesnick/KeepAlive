@@ -1,0 +1,195 @@
+# UNIFIED CONTENT PRODUCTION SYSTEM
+# (DevLog, BIP, CodeBite, Product Residence)
+
+This document serves as the **single source of truth** for producing high-signal content across all four pillars.
+
+---
+
+
+# TABLE OF CONTENTS
+
+0. **THE CONTENT BANK** (High-Volume Strategy)
+1. **PRODUCT RESIDENCE** (The Monthly Strategy)
+2. **DEVLOG** (The Deep Lesson)
+3. **BIP** (The Narrative Pulse)
+4. **CODEBITE** (The Technical Snack)
+5. **SOCIALS** (The Distribution Layer)
+
+---
+
+# 0. THE CONTENT BANK (How to handle big days)
+
+**The Premise:** You might fix 10 bugs in one day. That is 10 potential pieces of content.
+**The Trap:** Posting all 10 at once (noise).
+**The Win:** "Banking" them to diversify your feed for weeks.
+
+**Workflow:**
+1.  **Action:** You fix 5 bugs and build 1 feature today.
+2.  **Draft:** You write 3 BIPs, 1 CodeBite, and 1 DevLog immediately.
+3.  **Bank:** Save them.
+4.  **Drip:** Post them 1-by-1 over the next week.
+
+**Rule:** Build fast, release slow.
+
+---
+
+# 1. PRODUCT RESIDENCE (The Monthly Container)
+
+**Purpose:** A structured "residency" where you focus on **one product per month**. 
+**Goal:** Signal that you are a "Product Operator" who understands systems, users, and shipping.
+
+## Monthly Frame (Internal)
+*   **Product:** [Name/Description]
+*   **Focus:** [Core problem solving]
+*   **Constraint:** [Time, users, tech, scope]
+
+## Weekly Content Schedule
+
+### Week 1: Context & Problem (The Intent)
+*   **Focus:** What users struggle with vs. what you are solving.
+*   **Signal:** You think in problems, not just code.
+*   **Template Hook:** "Most products fail here: [specific problem]... This month I'm fixing [X]."
+
+### Week 2: Decisions & Trade-offs (The Judgment)
+*   **Focus:** Tech vs. UX. Option A vs. Option B.
+*   **Signal:** Taste and Senior decision-making.
+*   **Template Hook:** "I had to choose between [Option A] and [Option B]. I picked [Choice] because..."
+
+### Week 3: Friction & Reality (The Humility)
+*   **Focus:** Implementation realities. What went wrong? What was harder than expected?
+*   **Signal:** Real experience. Avoiding "perfect builder" fake vibes.
+*   **Template Hook:** "Something I underestimated: [unexpected issue]. On paper it made sense. In reality..."
+
+### Week 4: Reflection & Insight (The Transferable Lesson)
+*   **Focus:** One strong lesson that applies anywhere.
+*   **Signal:** Pattern recognition.
+*   **Template Hook:** "Wrapping up [Product], one thing is clear: [Lesson]."
+
+---
+
+# 2. DEVLOG (The Deep Lesson)
+
+**Purpose:** Demonstrate engineering maturity by analyzing **one real problem**.
+**Frequency:** When you solve something specific and non-trivial.
+**Golden Rule:** Answer "What did I learn that saves another dev time/money?"
+
+## The Canonical DevLog Template
+
+### 1. Title
+*   Clear/Technical (e.g., "Why Our Wallet Reconnected Every Session")
+
+### Constraints (Canonical)
+*   **Target Length:** Up to 1000 words. (Deep dive allowed)
+*   **Focus:** One learning, not a narration of your day.
+
+### Full Practical Example (Reference)
+**Title: Why Our Wallet Reconnected Every Session**
+
+**Context:** I’m building an on‑chain gifting feature. Users had to reconnect their wallet every time they opened the app.
+**Problem:** My initial assumption was a front‑end state bug (UI/cache). That was wrong.
+**Investigation:** I inspected local storage; data was there. The key signal: reconnection only happened on full app restarts, not refreshes.
+**Insight:** The issue was **session invalidation timing**. The app couldn't distinguish between an "expired" session and an "un-rehydrated" one.
+**Fix:** I persisted session metadata (not just address) and validated it explicitly on startup.
+**Takeaway:** If you’re building wallet products, treat session logic as UX infrastructure. Fix auth before design.
+
+### 2. Context
+*   What are you building? Why does this part matter?
+
+### 3. The Problem
+*   What broke?
+*   What was your (wrong) initial assumption? -> *Critical Step*
+
+### 4. Investigation
+*   How did you reason? 
+*   What ruled out false leads?
+*   What was the key signal?
+
+### 5. The Insight
+*   The root cause (abstracted).
+*   "I learned that [X] is usually a [Y] problem, not a connectivity problem."
+
+### 6. The Fix
+*   Briefly: What changed and why it worked.
+
+### 7. Takeaway
+*   Reusable rule for others. 
+*   "If building X, treat Y as infrastructure."
+
+## Platform Adaptations (Deriving Content)
+
+### LinkedIn (Text Post)
+*   **Target Length:** Up to 1000 words. (Long-form supported)
+*   **Structure:**
+    1.  Short Context
+    2.  Clear Problem
+    3.  Insight
+    4.  One Strong Takeaway
+*   **Tone:** Professional, clear, no fluff.
+
+### TikTok / Reels (Video)
+*   **Target Length:** 60–90 seconds. (1–1.5 mins)
+*   **Structure:**
+    1.  **Hook:** Context + Problem ("I was building X and Y broke.")
+    2.  **Core:** Insight ("I thought it was Z, but it was actually A.")
+    3.  **Close:** Takeaway ("So remember to check A.")
+
+---
+
+# 3. BIP (Build In Public - The Narrative Pulse)
+
+**Purpose:** The **story layer**. Captures momentum, feelings, and "decisions-in-motion."
+**Tone:** Lightweight, honest, slightly playful.
+**Frequency:** 3-5 times/week.
+
+## The Pillars (Pick ONE per post)
+*   **Progress:** Something moved forward.
+*   **Decision:** You chose X over Y.
+*   **Tension:** Something is unclear or broken.
+*   **Win:** A small victory.
+
+## BIP Template v2.0
+
+**1. Anchor (Set Scene):**
+*   "Building [Product]..."
+
+**2. Pulse (Action):**
+*   "Today [Action happened]..."
+
+**3. Signal (Friction/Insight):**
+*   "Was harder than expected because..." OR "Finally clicked."
+
+**4. Direction (Next Step):**
+*   "Next: [Specific Move]."
+
+*Example:*
+> Building the gifting flow.
+> Decided to persist session metadata.
+> More logic upfront, less UX pain later.
+> Feels right. Next: edge cases.
+
+---
+
+# 4. CODEBITE (The Technical Snack)
+
+**Purpose:** Share small, digestible coding challenges/tips.
+**Tone:** Teaching, helpful, bite-sized.
+**Frequency:** ~1 per week.
+
+## CodeBite Template
+
+### 1. Challenge (1-2 lines)
+*   "CodeBite #01: [Simple Problem, e.g., Reverse a string in TS]"
+
+### 2. Hint (1-3 lines)
+*   "Hint: [Approach without full solution]"
+
+### 3. Code Snippet (Image or Text)
+*   5-10 lines max showing the elegant solution.
+
+### 4. Mini Lesson
+*   "Why this works / Why it's useful."
+
+### 5. Tease (Optional)
+*   "Try more at CodeShop."
+
+---
